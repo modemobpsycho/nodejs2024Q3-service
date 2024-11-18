@@ -7,7 +7,6 @@ import { FavoritesRepository } from './favorites.repository';
 import { TrackRepository } from '../track/track.repository';
 import { AlbumRepository } from '../album/album.repository';
 import { ArtistRepository } from '../artist/artist.repository';
-import { Favorites } from 'src/common/interfaces/favorites.interface';
 
 @Injectable()
 export class FavoritesService {
@@ -19,35 +18,30 @@ export class FavoritesService {
   ) {}
 
   async getFavorites() {
-    const favoritesIds = this.favoritesRepository.getFavorites();
-    return {
-      artists: favoritesIds.artists.map((id) =>
-        this.artistRepository.getById(id),
-      ),
-      albums: favoritesIds.albums.map((id) => this.albumRepository.getById(id)),
-      tracks: favoritesIds.tracks.map((id) => this.trackRepository.getById(id)),
-    };
+    return await this.favoritesRepository.getFavorites();
   }
 
-  async addFavorite(type: keyof Favorites, id: string) {
-    const favorite = this[`${type.slice(0, -1)}Repository`].getById(id);
+  async addFavorite(type: 'albums' | 'artists' | 'tracks', id: string) {
+    const favorite = await this[`${type.slice(0, -1)}Repository`].getById(id);
     if (!favorite) {
       throw new UnprocessableEntityException(
         `${type[0].toUpperCase()}${type.slice(1)} not found`,
       );
     }
-    this.favoritesRepository.addFavorite(type, id);
+    await this.favoritesRepository.setFavorite(type, id, true);
   }
 
-  async deleteFavorite(type: keyof Favorites, id: string) {
-    const isFavorite = Object.values(this.favoritesRepository.getFavorites())
+  async deleteFavorite(type: 'albums' | 'artists' | 'tracks', id: string) {
+    const isFavorite = Object.values(
+      await this.favoritesRepository.getFavorites(),
+    )
       .flat()
-      .some((favorite) => favorite === id);
+      .some((favorite) => favorite.id === id);
     if (!isFavorite) {
       throw new NotFoundException(
         `${type[0].toUpperCase()}${type.slice(1)} not found`,
       );
     }
-    this.favoritesRepository.deleteFavorite(type, id);
+    await this.favoritesRepository.setFavorite(type, id, false);
   }
 }

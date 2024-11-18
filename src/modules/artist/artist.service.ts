@@ -11,7 +11,7 @@ export class ArtistService {
   }
 
   async getArtist(id: string) {
-    const artist = this.artistRepository.getById(id);
+    const artist = await this.artistRepository.getById(id);
     if (!artist) {
       throw new NotFoundException('Artist not found');
     }
@@ -19,22 +19,22 @@ export class ArtistService {
   }
 
   async createArtist(createArtistDto: ArtistDto) {
-    return this.artistRepository.create(createArtistDto);
+    return await this.artistRepository.create(createArtistDto);
   }
 
   async updateArtist(id: string, updateArtistDto: ArtistDto) {
-    const artist = this.artistRepository.getById(id);
+    const artist = await this.artistRepository.getById(id);
     if (!artist) {
       throw new NotFoundException('Artist not found');
     }
-    return this.artistRepository.update(id, updateArtistDto);
+    return await this.artistRepository.update(id, updateArtistDto);
   }
 
   async deleteArtist(id: string) {
-    const artist = this.artistRepository.getById(id);
+    const artist = await this.artistRepository.getById(id);
     if (!artist) {
       throw new NotFoundException('Artist not found');
     }
-    this.artistRepository.delete(id);
+    await this.artistRepository.delete(id);
   }
 }

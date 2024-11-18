@@ -6,44 +6,43 @@ import {
 import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ChangeUserDto } from './dto/change-user.dto';
+import { mapUserBigInt } from 'src/common/helpers/user';
 
 @Injectable()
 export class UserService {
   constructor(private userRepository: UserRepository) {}
 
   async getAll() {
-    return this.userRepository.getAll();
+    return await this.userRepository.getAll();
   }
 
   async getUser(id: string) {
-    const user = this.userRepository.getUser(id);
+    const user = await this.userRepository.getUser(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    return this.userRepository.getUser(id);
+    return mapUserBigInt(user);
   }
 
   async createUser(createUserDto: CreateUserDto) {
-    const user = this.userRepository.createUser(createUserDto);
-    delete user.password;
+    const user = await this.userRepository.createUser(createUserDto);
     return user;
   }
 
   async updateUser(id: string, updateUserDto: ChangeUserDto) {
-    const user = this.userRepository.getUser(id);
+    const user = await this.userRepository.getUser(id, true);
     if (!user) {
       throw new NotFoundException('User not found');
     }
     if (updateUserDto.oldPassword !== user.password) {
       throw new ForbiddenException('Wrong password');
     }
-    const userUpdated = this.userRepository.updateUser(id, updateUserDto);
-    delete userUpdated.password;
+    const userUpdated = await this.userRepository.updateUser(id, updateUserDto);
     return userUpdated;
   }
 
   async deleteUser(id: string) {
-    const user = this.userRepository.getUser(id);
+    const user = await this.userRepository.getUser(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }

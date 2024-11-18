@@ -1,53 +1,90 @@
 import { Injectable } from '@nestjs/common';
-import { DB } from 'src/common/db';
-import { v4 } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ChangeUserDto } from './dto/change-user.dto';
-import { User } from 'src/common/interfaces/user.interface';
+import { PrismaService } from 'src/common/prisma/prisma.service';
+import { v4 } from 'uuid';
+import { mapUserBigInt } from 'src/common/helpers/user';
 
 @Injectable()
 export class UserRepository {
-  getAll() {
-    return DB.users;
+  constructor(private prismaService: PrismaService) {}
+
+  async getAll() {
+    return (
+      await this.prismaService.user.findMany({
+        select: {
+          id: true,
+          login: true,
+          password: false,
+          createdAt: true,
+          updatedAt: true,
+          version: true,
+        },
+      })
+    ).map(mapUserBigInt);
   }
 
-  getUser(id: string) {
-    return DB.users.find((user) => user.id === id);
-  }
-
-  createUser(createUserDto: CreateUserDto) {
-    const id = v4();
-    DB.users.push({
-      id,
-      login: createUserDto.login,
-      password: createUserDto.password,
-      version: 1,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+  async getUser(id: string, isPassword = false) {
+    return await this.prismaService.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        login: true,
+        password: isPassword,
+        createdAt: true,
+        updatedAt: true,
+        version: true,
+      },
     });
-    return { ...DB.users.find((user) => user.id === id) };
   }
 
-  updateUser(id: string, changeUserDto: ChangeUserDto) {
-    let userUpdating: User | undefined;
-    DB.users = DB.users.map((user) => {
-      if (user.id === id) {
-        userUpdating = {
-          id: user.id,
-          login: user.login,
-          password: changeUserDto.newPassword,
-          createdAt: user.createdAt,
+  async createUser(createUserDto: CreateUserDto) {
+    return mapUserBigInt(
+      await this.prismaService.user.create({
+        data: {
+          id: v4(),
+          login: createUserDto.login,
+          password: createUserDto.password,
+          createdAt: Date.now(),
           updatedAt: Date.now(),
-          version: user.version + 1,
-        };
-        return userUpdating;
-      }
-      return user;
-    });
-    return { ...userUpdating };
+          version: 1,
+        },
+        select: {
+          id: true,
+          login: true,
+          password: false,
+          createdAt: true,
+          updatedAt: true,
+          version: true,
+        },
+      }),
+    );
   }
 
-  deleteUser(id: string) {
-    DB.users = DB.users.filter((user) => user.id !== id);
+  async updateUser(id: string, changeUserDto: ChangeUserDto) {
+    return mapUserBigInt(
+      await this.prismaService.user.update({
+        where: { id },
+        data: {
+          password: changeUserDto.newPassword,
+          updatedAt: Date.now(),
+          version: {
+            increment: 1,
+          },
+        },
+        select: {
+          id: true,
+          login: true,
+          password: false,
+          createdAt: true,
+          updatedAt: true,
+          version: true,
+        },
+      }),
+    );
+  }
+
+  async deleteUser(id: string) {
+    await this.prismaService.user.delete({ where: { id } });
   }
 }

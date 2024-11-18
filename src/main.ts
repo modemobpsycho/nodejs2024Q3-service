@@ -11,14 +11,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
   const configService = app.get(ConfigService);
-  console.log(join(__dirname, '..', 'doc', 'api.yaml'));
 
   const fileContents = readFileSync(
     join(__dirname, '..', 'doc', 'api.yaml'),
     'utf8',
   );
   const swaggerDocument = parse(fileContents);
-
   SwaggerModule.setup('api', app, swaggerDocument);
 
   const PORT = configService.get<string>('PORT') || 4000;

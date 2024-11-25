@@ -1,12 +1,8 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
-import { CreateUserDto } from './dto/create-user.dto';
 import { ChangeUserDto } from './dto/change-user.dto';
 import { mapUserBigInt } from 'src/common/helpers/user';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
@@ -17,7 +13,7 @@ export class UserService {
   }
 
   async getUser(id: string) {
-    const user = await this.userRepository.getUser(id);
+    const user = await this.userRepository.getUserById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -25,24 +21,26 @@ export class UserService {
   }
 
   async createUser(createUserDto: CreateUserDto) {
-    const user = await this.userRepository.createUser(createUserDto);
-    return user;
+    return await this.userRepository.createUser({ ...createUserDto, refreshToken: '' });
   }
 
   async updateUser(id: string, updateUserDto: ChangeUserDto) {
-    const user = await this.userRepository.getUser(id, true);
+    const user = await this.userRepository.getUserById(id, true);
     if (!user) {
       throw new NotFoundException('User not found');
     }
     if (updateUserDto.oldPassword !== user.password) {
       throw new ForbiddenException('Wrong password');
     }
-    const userUpdated = await this.userRepository.updateUser(id, updateUserDto);
+    const userUpdated = await this.userRepository.updateUser(id, {
+      ...updateUserDto,
+      refreshToken: user.refreshToken,
+    });
     return userUpdated;
   }
 
   async deleteUser(id: string) {
-    const user = await this.userRepository.getUser(id);
+    const user = await this.userRepository.getUserById(id);
     if (!user) {
       throw new NotFoundException('User not found');
     }

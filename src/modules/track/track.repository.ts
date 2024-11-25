@@ -21,12 +21,8 @@ export class TrackRepository {
       data: {
         id: v4(),
         name: createTrackDto.name,
-        artist: createTrackDto.artistId
-          ? { connect: { id: createTrackDto.artistId } }
-          : undefined,
-        album: createTrackDto.albumId
-          ? { connect: { id: createTrackDto.albumId } }
-          : undefined,
+        artist: createTrackDto.artistId ? { connect: { id: createTrackDto.artistId } } : undefined,
+        album: createTrackDto.albumId ? { connect: { id: createTrackDto.albumId } } : undefined,
         duration: createTrackDto.duration,
       },
     });

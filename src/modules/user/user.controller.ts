@@ -8,11 +8,14 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ChangeUserDto } from './dto/change-user.dto';
+import { AuthGuard } from 'src/common/auth/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
@@ -34,10 +37,7 @@ export class UserController {
   }
 
   @Put(':id')
-  async update(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() changeUserDto: ChangeUserDto,
-  ) {
+  async update(@Param('id', new ParseUUIDPipe()) id: string, @Body() changeUserDto: ChangeUserDto) {
     return await this.userService.updateUser(id, changeUserDto);
   }
 

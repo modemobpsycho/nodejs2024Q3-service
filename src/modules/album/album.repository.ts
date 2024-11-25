@@ -21,9 +21,7 @@ export class AlbumRepository {
       data: {
         id: v4(),
         name: createAlbumDto.name,
-        artist: createAlbumDto.artistId
-          ? { connect: { id: createAlbumDto.artistId } }
-          : undefined,
+        artist: createAlbumDto.artistId ? { connect: { id: createAlbumDto.artistId } } : undefined,
         year: createAlbumDto.year,
       },
     });
@@ -35,9 +33,7 @@ export class AlbumRepository {
       data: {
         name: updateAlbumDto.name,
         year: updateAlbumDto.year,
-        artist: updateAlbumDto.artistId
-          ? { connect: { id: updateAlbumDto.artistId } }
-          : undefined,
+        artist: updateAlbumDto.artistId ? { connect: { id: updateAlbumDto.artistId } } : undefined,
       },
     });
   }

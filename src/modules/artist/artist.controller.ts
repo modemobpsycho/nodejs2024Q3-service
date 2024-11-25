@@ -8,10 +8,13 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { ArtistService } from './artist.service';
 import { ArtistDto } from './dto/artist.dto';
+import { AuthGuard } from 'src/common/auth/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('artist')
 export class ArtistController {
   constructor(private artistService: ArtistService) {}
@@ -33,10 +36,7 @@ export class ArtistController {
   }
 
   @Put(':id')
-  update(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() updateArtistDto: ArtistDto,
-  ) {
+  update(@Param('id', new ParseUUIDPipe()) id: string, @Body() updateArtistDto: ArtistDto) {
     return this.artistService.updateArtist(id, updateArtistDto);
   }
 

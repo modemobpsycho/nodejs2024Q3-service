@@ -8,11 +8,14 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { TrackService } from './track.service';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { ChangeTrackDto } from './dto/change-track.dto';
+import { AuthGuard } from 'src/common/auth/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('track')
 export class TrackController {
   constructor(private trackService: TrackService) {}
@@ -34,10 +37,7 @@ export class TrackController {
   }
 
   @Put(':id')
-  update(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() updateTrackDto: ChangeTrackDto,
-  ) {
+  update(@Param('id', new ParseUUIDPipe()) id: string, @Body() updateTrackDto: ChangeTrackDto) {
     return this.trackService.updateTrack(id, updateTrackDto);
   }
 

@@ -7,3 +7,8 @@ export class CreateUserDto {
   @IsString()
   password: string;
 }
+
+export class CreateUserDtoWithToken extends CreateUserDto {
+  @IsString()
+  refreshToken: string;
+}

@@ -5,10 +5,11 @@ import { FavoritesRepository } from './favorites.repository';
 import { ArtistModule } from '../artist/artist.module';
 import { TrackModule } from '../track/track.module';
 import { AlbumModule } from '../album/album.module';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   controllers: [FavoritesController],
-  providers: [FavoritesService, FavoritesRepository],
+  providers: [JwtService, FavoritesService, FavoritesRepository],
   imports: [ArtistModule, TrackModule, AlbumModule],
 })
 export class FavoritesModule {}

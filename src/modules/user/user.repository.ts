@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { ChangeUserDto } from './dto/change-user.dto';
+import { CreateUserDtoWithToken } from './dto/create-user.dto';
+import { ChangeUserDtoWithToken } from './dto/change-user.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { v4 } from 'uuid';
 import { mapUserBigInt } from 'src/common/helpers/user';
@@ -19,12 +19,13 @@ export class UserRepository {
           createdAt: true,
           updatedAt: true,
           version: true,
+          refreshToken: false,
         },
       })
     ).map(mapUserBigInt);
   }
 
-  async getUser(id: string, isPassword = false) {
+  async getUserById(id: string, isPassword = false) {
     return await this.prismaService.user.findUnique({
       where: { id },
       select: {
@@ -34,11 +35,27 @@ export class UserRepository {
         createdAt: true,
         updatedAt: true,
         version: true,
+        refreshToken: true,
       },
     });
   }
 
-  async createUser(createUserDto: CreateUserDto) {
+  async getUserByLogin(login: string, isPassword = false) {
+    return await this.prismaService.user.findFirst({
+      where: { login },
+      select: {
+        id: true,
+        login: true,
+        password: isPassword,
+        createdAt: true,
+        updatedAt: true,
+        version: true,
+        refreshToken: false,
+      },
+    });
+  }
+
+  async createUser(createUserDto: CreateUserDtoWithToken) {
     return mapUserBigInt(
       await this.prismaService.user.create({
         data: {
@@ -48,6 +65,7 @@ export class UserRepository {
           createdAt: Date.now(),
           updatedAt: Date.now(),
           version: 1,
+          refreshToken: createUserDto.refreshToken,
         },
         select: {
           id: true,
@@ -56,12 +74,13 @@ export class UserRepository {
           createdAt: true,
           updatedAt: true,
           version: true,
+          refreshToken: false,
         },
       }),
     );
   }
 
-  async updateUser(id: string, changeUserDto: ChangeUserDto) {
+  async updateUser(id: string, changeUserDto: ChangeUserDtoWithToken) {
     return mapUserBigInt(
       await this.prismaService.user.update({
         where: { id },
@@ -71,6 +90,7 @@ export class UserRepository {
           version: {
             increment: 1,
           },
+          refreshToken: changeUserDto.refreshToken,
         },
         select: {
           id: true,
@@ -79,6 +99,7 @@ export class UserRepository {
           createdAt: true,
           updatedAt: true,
           version: true,
+          refreshToken: false,
         },
       }),
     );

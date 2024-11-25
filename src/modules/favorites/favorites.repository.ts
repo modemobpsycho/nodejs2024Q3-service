@@ -28,11 +28,7 @@ export class FavoritesRepository {
     };
   }
 
-  async setFavorite(
-    type: 'albums' | 'artists' | 'tracks',
-    id: string,
-    isFavorite: boolean,
-  ) {
+  async setFavorite(type: 'albums' | 'artists' | 'tracks', id: string, isFavorite: boolean) {
     await this.prismaService[type.slice(0, -1)].update({
       where: { id },
       data: {

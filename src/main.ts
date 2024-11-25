@@ -12,10 +12,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   const configService = app.get(ConfigService);
 
-  const fileContents = readFileSync(
-    join(__dirname, '..', 'doc', 'api.yaml'),
-    'utf8',
-  );
+  const fileContents = readFileSync(join(__dirname, '..', 'doc', 'api.yaml'), 'utf8');
   const swaggerDocument = parse(fileContents);
   SwaggerModule.setup('api', app, swaggerDocument);
 

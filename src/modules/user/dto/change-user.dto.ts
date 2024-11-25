@@ -7,3 +7,8 @@ export class ChangeUserDto {
   @IsString()
   newPassword: string;
 }
+
+export class ChangeUserDtoWithToken extends ChangeUserDto {
+  @IsString()
+  refreshToken: string;
+}

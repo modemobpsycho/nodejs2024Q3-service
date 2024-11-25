@@ -1,0 +1,38 @@
+services:
+  db:
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    ports:
+      - "5433:5432"
+    networks:
+      - app-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  app:
+    env_file:
+      - .env
+    ports:
+      - "4000:4000"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - app-network
+    depends_on:
+      - db
+    volumes:
+      - ./src:/usr/src/app/src
+    command: ["npm", "run", "start:dev:docker"]
+    restart: always
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

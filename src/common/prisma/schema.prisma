@@ -14,21 +14,22 @@ datasource db {
 }
 
 model User {
-  id        String @unique
-  login     String
-  password  String
-  version   Int
-  createdAt BigInt
-  updatedAt BigInt
+  id           String @unique
+  login        String
+  password     String
+  version      Int
+  createdAt    BigInt
+  updatedAt    BigInt
+  refreshToken String
 }
 
 model Track {
   id         String  @unique
   name       String
   duration   Int
-  album      Album?   @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  album      Album?  @relation(fields: [albumId], references: [id], onDelete: SetNull)
   albumId    String?
-  artist     Artist?  @relation(fields: [artistId], references: [id], onDelete: SetNull)
+  artist     Artist? @relation(fields: [artistId], references: [id], onDelete: SetNull)
   artistId   String?
   isFavorite Boolean @default(false)
 }
@@ -46,7 +47,7 @@ model Album {
   id         String  @unique
   name       String
   year       Int
-  artist     Artist?  @relation(fields: [artistId], references: [id], onDelete: SetNull)
+  artist     Artist? @relation(fields: [artistId], references: [id], onDelete: SetNull)
   artistId   String?
   Track      Track[]
   isFavorite Boolean @default(false)
